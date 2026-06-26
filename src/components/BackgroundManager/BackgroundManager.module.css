@@ -1,0 +1,10 @@
+.container { display: flex; flex-direction: column; gap: 12px; }
+.label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: var(--radius); cursor: pointer; font-size: 13px; transition: border-color 0.15s; }
+.btn:hover { border-color: var(--accent); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.active { border-color: var(--accent) !important; color: var(--accent); }
+.btnDanger { background: var(--surface); border: 1px solid #ef4444; color: #ef4444; padding: 8px 14px; border-radius: var(--radius); cursor: pointer; font-size: 13px; }
+.overlayRow { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-muted); }
+.overlayRow input { accent-color: var(--accent); width: 200px; }

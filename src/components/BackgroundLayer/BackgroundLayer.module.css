@@ -1,0 +1,11 @@
+.bg {
+  position: fixed; inset: 0; z-index: 0;
+  background-size: cover; background-position: center;
+  pointer-events: none;
+}
+.overlay {
+  position: fixed; inset: 0; z-index: 1;
+  background: #000;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
