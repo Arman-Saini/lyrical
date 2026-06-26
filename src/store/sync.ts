@@ -41,9 +41,13 @@ export function initSync(): () => void {
     applyMessage(event.data, WINDOW_ID)
   }
 
-  const unsub = useStore.subscribe((state, prev) => {
-    if (state === prev) return
-    channel.postMessage(buildMessage(WINDOW_ID))
+  let lastSent = ''
+  const unsub = useStore.subscribe(() => {
+    const snapshot = buildMessage(WINDOW_ID)
+    const json = JSON.stringify(snapshot.state)
+    if (json === lastSent) return
+    lastSent = json
+    channel.postMessage(snapshot)
   })
 
   return () => {

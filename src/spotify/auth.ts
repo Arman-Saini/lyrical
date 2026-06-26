@@ -69,7 +69,12 @@ export async function handleCallback(code: string): Promise<void> {
 
 export function getTokens(): Tokens | null {
   const raw = localStorage.getItem(TOKEN_KEY)
-  return raw ? JSON.parse(raw) : null
+  if (!raw) return null
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return null
+  }
 }
 
 export function getAccessToken(): string | null {
