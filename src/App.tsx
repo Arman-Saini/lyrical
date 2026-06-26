@@ -4,6 +4,7 @@ import Lyrics from './routes/Lyrics'
 import Art from './routes/Art'
 import Timer from './routes/Timer'
 import Callback from './routes/Callback'
+import NowPlaying from './routes/NowPlaying'
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/art" element={<Art />} />
         <Route path="/timer" element={<Timer />} />
         <Route path="/callback" element={<Callback />} />
+        <Route path="/now-playing" element={<NowPlaying />} />
       </Routes>
     </BrowserRouter>
   )

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useStore } from '../store/index'
 import { initiateAuth, isAuthenticated, logout } from '../spotify/auth'
 import { startPolling } from '../spotify/player'
@@ -11,6 +11,60 @@ import ThemeCurator from '../components/ThemeCurator/ThemeCurator'
 import BackgroundManager from '../components/BackgroundManager/BackgroundManager'
 import BackgroundLayer from '../components/BackgroundLayer/BackgroundLayer'
 import styles from './Hub.module.css'
+
+// ── Now Playing API section ────────────────────────────────────────────────
+function NowPlayingApiSection() {
+  const [copied, setCopied] = useState(false)
+
+  const copyToken = useCallback(() => {
+    try {
+      const raw = localStorage.getItem('lyrical_tokens')
+      if (!raw) return
+      const { refresh_token } = JSON.parse(raw) as { refresh_token?: string }
+      if (!refresh_token) return
+      navigator.clipboard.writeText(refresh_token).then(() => {
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      })
+    } catch { /* clipboard denied */ }
+  }, [])
+
+  return (
+    <section className={styles.section}>
+      <h2 className={styles.sectionTitle}>Now Playing API</h2>
+      <p className={styles.apiDesc}>
+        Lets anyone see what you&apos;re listening to — no login required.
+      </p>
+      <div className={styles.row}>
+        <code className={styles.apiEndpoint}>/api/now-playing</code>
+        <button className={styles.btn} onClick={() => window.open('/now-playing', '_blank')}>
+          Preview
+        </button>
+      </div>
+      <div className={styles.apiSteps}>
+        <div className={styles.apiStep}>
+          <span className={styles.apiStepNum}>1</span>
+          <button className={styles.btn} onClick={copyToken} disabled={copied}>
+            {copied ? 'Copied!' : 'Copy refresh token'}
+          </button>
+          <span className={styles.apiStepNote}>must be connected to Spotify first</span>
+        </div>
+        <div className={styles.apiStep}>
+          <span className={styles.apiStepNum}>2</span>
+          <span className={styles.apiStepNote}>
+            Paste as <code className={styles.apiCode}>SPOTIFY_REFRESH_TOKEN</code> in Vercel → Settings → Environment Variables
+          </span>
+        </div>
+        <div className={styles.apiStep}>
+          <span className={styles.apiStepNum}>3</span>
+          <span className={styles.apiStepNote}>Redeploy — the endpoint goes live instantly</span>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
 
 const PAGE_ROWS = [
   { id: 'hub',   label: 'Hub' },
@@ -224,6 +278,8 @@ export default function Hub() {
           <h2 className={styles.sectionTitle}>Background</h2>
           <BackgroundManager />
         </section>
+
+        <NowPlayingApiSection />
       </div>
       {/* Marquee ticker — visible only in Chaos Theory / Warm Brutalist via CSS */}
       <div className={styles.ticker} aria-hidden="true">

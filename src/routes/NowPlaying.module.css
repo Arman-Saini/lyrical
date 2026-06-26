@@ -1,0 +1,242 @@
+@keyframes artReveal {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.3; transform: scale(0.75); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Page ─────────────────────────────────────────────────────────────────── */
+.page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg, #0a0a0a);
+  overflow: hidden;
+}
+
+/* ── Ambient background ───────────────────────────────────────────────────── */
+.ambientBg {
+  position: absolute;
+  inset: -10%;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(80px) brightness(0.15) saturate(2);
+  transform: scale(1.1);
+  pointer-events: none;
+  transition: background-image 1.5s ease;
+}
+
+/* ── Player layout ────────────────────────────────────────────────────────── */
+.player {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 56px;
+  padding: 48px;
+  max-width: 860px;
+  width: 100%;
+  animation: fadeIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Album art ────────────────────────────────────────────────────────────── */
+.artLink {
+  flex-shrink: 0;
+  display: block;
+  width: clamp(200px, 32vw, 340px);
+  aspect-ratio: 1;
+  text-decoration: none;
+}
+
+.art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  animation: artReveal 0.6s ease both;
+}
+
+/* ── Track info ───────────────────────────────────────────────────────────── */
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Live indicator */
+.liveTag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body, 'DM Mono', monospace);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--text-muted, #6b6b6b);
+}
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent, #c8b89a);
+  animation: livePulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+/* Track name */
+.trackLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.track {
+  font-family: var(--font-display, 'Playfair Display', serif);
+  font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+  font-weight: 700;
+  color: var(--text, #f5f0e8);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  transition: color 0.3s ease;
+}
+
+.trackLink:hover .track {
+  color: var(--accent, #c8b89a);
+}
+
+.artist {
+  font-family: var(--font-body, 'DM Mono', monospace);
+  font-size: 12px;
+  color: var(--accent, #c8b89a);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.album {
+  font-family: var(--font-body, 'DM Mono', monospace);
+  font-size: 11px;
+  color: var(--text-muted, #6b6b6b);
+  letter-spacing: 0.03em;
+}
+
+/* Progress */
+.progressWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 1px;
+  background: var(--border, #2a2a2a);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--accent, #c8b89a);
+  transition: width 0.5s linear;
+}
+
+.times {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-body, 'DM Mono', monospace);
+  font-size: 11px;
+  color: var(--text-muted, #6b6b6b);
+}
+
+/* ── Offline / loading states ─────────────────────────────────────────────── */
+.offline {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: fadeIn 0.5s ease both;
+}
+
+.offlineLabel {
+  font-family: var(--font-display, 'Playfair Display', serif);
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-weight: 700;
+  color: var(--text, #f5f0e8);
+  letter-spacing: -0.02em;
+  opacity: 0.4;
+}
+
+.offlineSub {
+  font-family: var(--font-body, 'DM Mono', monospace);
+  font-size: 11px;
+  color: var(--text-muted, #6b6b6b);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+@keyframes loadingPulse {
+  0%, 100% { opacity: 0.2; }
+  50%       { opacity: 0.6; }
+}
+
+.loading {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loadingDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted, #6b6b6b);
+  animation: loadingPulse 1.4s ease-in-out infinite;
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+.footer {
+  position: fixed;
+  bottom: 24px;
+  right: 28px;
+  z-index: 10;
+}
+
+.footerText {
+  font-family: var(--font-display, 'Playfair Display', serif);
+  font-size: 13px;
+  color: var(--text-muted, #6b6b6b);
+  opacity: 0.3;
+  letter-spacing: 0.02em;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .player {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+    padding: 32px 24px;
+  }
+
+  .artLink {
+    width: min(70vw, 260px);
+    align-self: center;
+  }
+}
