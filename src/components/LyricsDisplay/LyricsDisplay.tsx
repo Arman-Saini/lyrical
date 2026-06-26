@@ -5,12 +5,19 @@ import styles from './LyricsDisplay.module.css'
 interface Props {
   lyrics: LyricLine[]
   activeIndex: number
-  artist: string
-  trackName: string
   loading?: boolean
+  noTrack?: boolean
 }
 
-export default function LyricsDisplay({ lyrics, activeIndex, artist, trackName, loading }: Props) {
+function lineStyle(rel: number, isPast: boolean): React.CSSProperties {
+  const dist = Math.abs(rel)
+  const opacity = isPast
+    ? Math.max(0.08, 0.55 - dist * 0.1)
+    : Math.max(0.12, 0.65 - dist * 0.1)
+  return { opacity }
+}
+
+export default function LyricsDisplay({ lyrics, activeIndex, loading, noTrack }: Props) {
   const activeRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -20,7 +27,7 @@ export default function LyricsDisplay({ lyrics, activeIndex, artist, trackName, 
   if (loading) {
     return (
       <div className={styles.empty}>
-        <p>Loading lyrics…</p>
+        <span className={styles.emptyText}>Loading lyrics…</span>
       </div>
     )
   }
@@ -28,33 +35,30 @@ export default function LyricsDisplay({ lyrics, activeIndex, artist, trackName, 
   if (!lyrics.length) {
     return (
       <div className={styles.empty}>
-        <p>{trackName ? 'No lyrics found for this track.' : 'Connect Spotify to load lyrics.'}</p>
+        <span className={styles.emptyText}>
+          {noTrack ? 'Connect Spotify to see lyrics.' : 'No lyrics found for this track.'}
+        </span>
       </div>
     )
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <span className={styles.track}>{trackName}</span>
-        <span className={styles.artist}>{artist}</span>
-      </div>
-      <div className={styles.lines}>
-        {lyrics.map((line, i) => {
-          const rel = i - activeIndex
-          const isActive = rel === 0
-          const isPast = rel < 0
-          return (
-            <div
-              key={`${line.timeMs}-${i}`}
-              ref={isActive ? activeRef : null}
-              className={`${styles.line} ${isActive ? styles.active : ''} ${isPast ? styles.past : ''} ${rel > 0 ? styles.future : ''}`}
-            >
-              {line.text}
-            </div>
-          )
-        })}
-      </div>
+    <div className={styles.lines}>
+      {lyrics.map((line, i) => {
+        const rel = i - activeIndex
+        const isActive = rel === 0
+        const isPast = rel < 0
+        return (
+          <div
+            key={`${line.timeMs}-${i}`}
+            ref={isActive ? activeRef : null}
+            className={`${styles.line} ${isActive ? styles.active : isPast ? styles.past : styles.future}`}
+            style={isActive ? undefined : lineStyle(rel, isPast)}
+          >
+            {line.text}
+          </div>
+        )
+      })}
     </div>
   )
 }

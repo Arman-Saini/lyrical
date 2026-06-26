@@ -46,26 +46,29 @@ export function startPolling(
       const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
         headers: { Authorization: `Bearer ${token}` },
       })
-      if (res.status === 204) { setTimeout(poll, 5000); return }
+      if (res.status === 204) { setTimeout(poll, 3000); return }
       if (res.status === 429) {
         const retryAfter = (Number(res.headers.get('Retry-After') ?? 10) + 1) * 1000
         setTimeout(poll, retryAfter)
         return
       }
-      if (!res.ok) { setTimeout(poll, 10000); return }
+      if (!res.ok) { setTimeout(poll, 5000); return }
 
       const data = await res.json()
       const parsed = parseCurrentlyPlaying(data)
       if (parsed) {
         if (parsed.track.id !== lastTrackId) {
           lastTrackId = parsed.track.id
-          onTrackChange(parsed.track)
+          // Check active again — StrictMode kills instance A between poll start and response;
+          // without this guard, instance A's stale callback fires after instance B has already
+          // set the correct track, reverting the UI to the old song.
+          if (active) onTrackChange(parsed.track)
         }
-        onProgress(parsed.progressMs, parsed.isPlaying)
+        if (active) onProgress(parsed.progressMs, parsed.isPlaying)
       }
     } catch { /* network error — retry */ }
 
-    setTimeout(poll, 5000)
+    setTimeout(poll, 2000)
   }
 
   poll()

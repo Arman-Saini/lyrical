@@ -1,10 +1,186 @@
-.container { display: flex; flex-direction: column; gap: 12px; }
-.label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
-.row { display: flex; gap: 8px; flex-wrap: wrap; }
-.btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: var(--radius); cursor: pointer; font-size: 13px; transition: border-color 0.15s; }
-.btn:hover { border-color: var(--accent); }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.active { border-color: var(--accent) !important; color: var(--accent); }
-.btnDanger { background: var(--surface); border: 1px solid #ef4444; color: #ef4444; padding: 8px 14px; border-radius: var(--radius); cursor: pointer; font-size: 13px; }
-.overlayRow { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-muted); }
-.overlayRow input { accent-color: var(--accent); width: 200px; }
+.container { display: flex; flex-direction: column; gap: 16px; }
+
+.label { display: none; } /* Hub section already labels this */
+
+.row { display: flex; gap: 32px; flex-wrap: wrap; align-items: center; }
+
+.btn {
+  background: none;
+  border: none;
+  color: var(--text);
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 5px;
+  transition: color 0.4s ease, text-decoration-color 0.4s ease;
+  letter-spacing: 0.01em;
+}
+
+.btn:hover { color: var(--accent); text-decoration-color: var(--accent); }
+.btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
+.active { color: var(--accent) !important; text-decoration-color: var(--accent) !important; }
+
+.btnDanger {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 5px;
+  transition: color 0.4s ease, text-decoration-color 0.4s ease;
+}
+
+.btnDanger:hover { color: var(--text); text-decoration-color: var(--border); }
+
+.overlayRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.overlayRow input[type="range"] {
+  accent-color: var(--accent);
+  width: 180px;
+  cursor: pointer;
+}
+
+/* ── Chaos Theory: match border-fill button style ─────────────────────────── */
+:global([data-theme="chaos-theory"]) .btn {
+  text-decoration: none;
+  border: 1px solid var(--text);
+  padding: 6px 14px;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+:global([data-theme="chaos-theory"]) .btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+  text-decoration: none;
+}
+
+:global([data-theme="chaos-theory"]) .btn:disabled {
+  border-color: var(--border);
+}
+
+:global([data-theme="chaos-theory"]) .active {
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  background: none;
+}
+
+:global([data-theme="chaos-theory"]) .btnDanger {
+  text-decoration: none;
+  border: 1px solid var(--border);
+  padding: 6px 14px;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+:global([data-theme="chaos-theory"]) .btnDanger:hover {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+  text-decoration: none;
+}
+
+/* ── Cyber Minimal button overrides ───────────────────────────────────────── */
+:global([data-theme="cyber-minimal"]) .btn {
+  text-decoration: none;
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  color: var(--accent);
+  transition: background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+:global([data-theme="cyber-minimal"]) .btn:hover {
+  background: rgba(0, 212, 255, 0.08);
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.15);
+  color: var(--accent);
+  text-decoration: none;
+}
+
+:global([data-theme="cyber-minimal"]) .btn:disabled { border-color: var(--border); opacity: 0.3; }
+
+:global([data-theme="cyber-minimal"]) .active {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.2) !important;
+}
+
+:global([data-theme="cyber-minimal"]) .btnDanger {
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  transition: background 0.2s ease;
+}
+
+:global([data-theme="cyber-minimal"]) .btnDanger:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.15);
+  color: var(--text);
+  text-decoration: none;
+}
+
+/* ── Warm Brutalist button overrides ──────────────────────────────────────── */
+:global([data-theme="warm-brutalist"]) .btn {
+  text-decoration: none;
+  border: 2px solid var(--text);
+  padding: 6px 14px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text);
+  transition: background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+}
+
+:global([data-theme="warm-brutalist"]) .btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 3px 3px 0 var(--text);
+  transform: translate(-1px, -1px);
+  text-decoration: none;
+}
+
+:global([data-theme="warm-brutalist"]) .active {
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  background: none !important;
+}
+
+:global([data-theme="warm-brutalist"]) .btnDanger {
+  text-decoration: none;
+  border: 2px solid var(--text-muted);
+  padding: 6px 14px;
+  font-size: 12px;
+  text-transform: uppercase;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+:global([data-theme="warm-brutalist"]) .btnDanger:hover {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+  text-decoration: none;
+}

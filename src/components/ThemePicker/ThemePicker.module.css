@@ -1,9 +1,74 @@
-.container { display: flex; flex-direction: column; gap: 24px; }
-.group { display: flex; flex-direction: column; gap: 12px; }
-.groupLabel { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
-.card { background: none; border: 2px solid transparent; border-radius: var(--radius, 8px); cursor: pointer; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: border-color 0.15s; }
-.card:hover { border-color: var(--accent); }
-.active { border-color: var(--accent) !important; }
-.preview { width: 100%; aspect-ratio: 16/10; border-radius: calc(var(--radius, 8px) - 2px); border: 1px solid; padding: 8px; display: flex; flex-direction: column; justify-content: center; }
-.name { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.groupLabel {
+  font-family: 'DM Mono', 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #6b6b6b;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 6px;
+}
+
+.card {
+  background: none;
+  border: 1px solid #1e1e1e;
+  border-radius: 0;
+  cursor: pointer;
+  padding: 0 0 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: border-color 0.4s ease;
+}
+
+.card:hover {
+  border-color: #4a4a4a;
+}
+
+.active {
+  border-color: #c8b89a !important;
+}
+
+.preview {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 0;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+}
+
+.name {
+  font-family: 'DM Mono', 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: 400;
+  color: #6b6b6b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  letter-spacing: 0.02em;
+  transition: color 0.4s ease;
+}
+
+.card:hover .name { color: #f5f0e8; }
+.active .name { color: #c8b89a; }

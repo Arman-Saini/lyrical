@@ -41,6 +41,7 @@ export interface Theme {
     '--font-body': string
     '--radius': string
     '--blur'?: string
+    '--glass-blur'?: string
   }
   scanlines?: boolean
 }
@@ -49,6 +50,7 @@ export interface AppState {
   track: Track | null
   progressMs: number
   isPlaying: boolean
+  lyricsLoading: boolean
   syncNudgeMs: number
   lyrics: LyricLine[]
   activeLyricIndex: number

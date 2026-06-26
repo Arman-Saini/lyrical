@@ -12,10 +12,9 @@ const DEFAULT_TIMER: TimerState = {
 }
 
 interface Store extends AppState {
-  lyricsLoading: boolean
   lastProgressAt: number
   setTrack: (track: Track | null) => void
-  setProgressMs: (ms: number) => void
+  setProgressMs: (ms: number, at?: number) => void
   setIsPlaying: (isPlaying: boolean) => void
   nudgeSyncMs: (delta: number) => void
   setLyrics: (lyrics: LyricLine[]) => void
@@ -37,14 +36,14 @@ export const useStore = create<Store>((set) => ({
   lyrics: [],
   activeLyricIndex: -1,
   lyricsLoading: false,
-  lastProgressAt: Date.now(),
+  lastProgressAt: 0,
   theme: savedTheme,
   background: 'theme-default',
   overlayOpacity: 0.5,
   timerState: DEFAULT_TIMER,
 
   setTrack: (track) => set({ track }),
-  setProgressMs: (progressMs) => set({ progressMs, lastProgressAt: Date.now() }),
+  setProgressMs: (progressMs, at = Date.now()) => set({ progressMs, lastProgressAt: at }),
   setIsPlaying: (isPlaying) => set({ isPlaying }),
   nudgeSyncMs: (delta) => set(s => ({ syncNudgeMs: s.syncNudgeMs + delta })),
   setLyrics: (lyrics) => set({ lyrics, activeLyricIndex: -1 }),

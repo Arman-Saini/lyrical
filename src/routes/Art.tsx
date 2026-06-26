@@ -1,18 +1,56 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useStore } from '../store/index'
-import { applyTheme } from '../themes/index'
+import { getActiveLyricIndex } from '../lyrics/sync'
+import { usePageTheme } from '../themes/usePageTheme'
+import LyricsDisplay from '../components/LyricsDisplay/LyricsDisplay'
 import BackgroundLayer from '../components/BackgroundLayer/BackgroundLayer'
 import styles from './Art.module.css'
 
 export default function Art() {
-  const { track, progressMs, theme } = useStore()
+  const store = useStore()
+  const { track } = store
+  usePageTheme('art', store.theme)
 
-  useEffect(() => { applyTheme(theme) }, [theme])
+  const [interpolatedMs, setInterpolatedMs] = useState(0)
+  const [activeLyricIndex, setActiveLyricIndex] = useState(-1)
+  const [showLyrics, setShowLyrics] = useState(
+    () => localStorage.getItem('lyrical_art_lyrics') === 'true'
+  )
 
-  const progress = track ? progressMs / track.durationMs : 0
+  useEffect(() => {
+    function tick() {
+      const s = useStore.getState()
+      const elapsed = s.isPlaying ? Date.now() - s.lastProgressAt : 0
+      setInterpolatedMs(s.progressMs + elapsed)
+    }
+    tick()
+    const id = setInterval(tick, 250)
+    return () => clearInterval(id)
+  }, [])
+
+  useEffect(() => {
+    function tick() {
+      const s = useStore.getState()
+      const elapsed = s.isPlaying ? Date.now() - s.lastProgressAt : 0
+      const idx = getActiveLyricIndex(s.lyrics, s.progressMs + elapsed + s.syncNudgeMs)
+      setActiveLyricIndex(idx)
+    }
+    tick()
+    const id = setInterval(tick, 100)
+    return () => clearInterval(id)
+  }, [])
+
+  function toggleLyrics() {
+    const next = !showLyrics
+    setShowLyrics(next)
+    localStorage.setItem('lyrical_art_lyrics', String(next))
+  }
+
+  const progress = track ? Math.min(interpolatedMs / track.durationMs, 1) : 0
+  const isSplit = showLyrics && !!track
 
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} ${isSplit ? styles.split : ''}`}>
       <BackgroundLayer />
       {track?.artUrl && (
         <div
@@ -20,9 +58,14 @@ export default function Art() {
           style={{ backgroundImage: `url(${track.artUrl})` }}
         />
       )}
-      <div className={styles.content}>
-        {track ? (
-          <>
+
+      <button className={styles.toggleBtn} onClick={toggleLyrics}>
+        {showLyrics ? 'hide lyrics' : 'lyrics'}
+      </button>
+
+      {track ? (
+        <>
+          <div className={styles.artPanel}>
             <div className={styles.artWrap}>
               <img
                 className={styles.art}
@@ -40,14 +83,25 @@ export default function Art() {
               <div className={styles.progressFill} style={{ width: `${progress * 100}%` }} />
             </div>
             <div className={styles.times}>
-              <span>{formatMs(progressMs)}</span>
+              <span>{formatMs(interpolatedMs)}</span>
               <span>{formatMs(track.durationMs)}</span>
             </div>
-          </>
-        ) : (
-          <div className={styles.empty}>Open Hub to connect Spotify</div>
-        )}
-      </div>
+          </div>
+
+          {isSplit && (
+            <div className={styles.lyricsPanel}>
+              <LyricsDisplay
+                lyrics={store.lyrics}
+                activeIndex={activeLyricIndex}
+                loading={store.lyricsLoading}
+                noTrack={false}
+              />
+            </div>
+          )}
+        </>
+      ) : (
+        <div className={styles.empty}>Open Hub to connect Spotify</div>
+      )}
     </div>
   )
 }

@@ -1,0 +1,165 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  backdrop-filter: blur(var(--glass-blur));
+}
+
+/* ── Preset cards ─────────────────────────────────────────────────────────── */
+.presets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.preset {
+  position: relative;
+  background: var(--p-bg, var(--surface));
+  border: 1px solid var(--border);
+  border-radius: 0;
+  cursor: pointer;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  transition: border-color 0.4s ease;
+  overflow: hidden;
+}
+
+.preset::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--p-accent, var(--accent));
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+  transform-origin: left;
+}
+
+.preset:hover::after { transform: scaleX(1); }
+.preset:hover { border-color: var(--text-muted); }
+
+.presetActive {
+  border-color: var(--p-accent, var(--accent)) !important;
+}
+
+.presetActive::after { transform: scaleX(1) !important; }
+
+.presetName {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--p-text, var(--text));
+  letter-spacing: -0.01em;
+}
+
+.presetSub {
+  font-family: var(--font-body);
+  font-size: 10px;
+  color: var(--p-text-muted, var(--text-muted));
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── Divider ──────────────────────────────────────────────────────────────── */
+.rule {
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Mixer grid ───────────────────────────────────────────────────────────── */
+.mixer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.row {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-width: 180px;
+}
+
+.label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+}
+
+/* ── Chips ────────────────────────────────────────────────────────────────── */
+.chipRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: border-color 0.3s ease, color 0.3s ease;
+  white-space: nowrap;
+}
+
+.chip:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.chipActive {
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+}
+
+/* ── Color swatches ───────────────────────────────────────────────────────── */
+.swatchRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 0;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s ease, outline 0.2s ease;
+}
+
+.swatch:hover { transform: scale(1.15); }
+
+.swatchActive {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.colorInput {
+  width: 22px;
+  height: 22px;
+  border-radius: 0;
+  border: 1px solid var(--border);
+  background: none;
+  cursor: pointer;
+  padding: 1px;
+}

@@ -5,11 +5,19 @@ import { startPolling } from '../spotify/player'
 import { fetchLyrics } from '../lyrics/lrclib'
 import { parseLRC } from '../lyrics/parser'
 import { loadCustomLyrics, saveCustomLyrics } from '../lyrics/custom'
-import { applyTheme } from '../themes/index'
-import ThemePicker from '../components/ThemePicker/ThemePicker'
+import { applyTheme, THEMES } from '../themes/index'
+import { getEffectiveTheme } from '../themes/usePageTheme'
+import ThemeCurator from '../components/ThemeCurator/ThemeCurator'
 import BackgroundManager from '../components/BackgroundManager/BackgroundManager'
 import BackgroundLayer from '../components/BackgroundLayer/BackgroundLayer'
 import styles from './Hub.module.css'
+
+const PAGE_ROWS = [
+  { id: 'hub',   label: 'Hub' },
+  { id: 'lyrics', label: 'Lyrics' },
+  { id: 'art',   label: 'Art' },
+  { id: 'timer', label: 'Timer' },
+]
 
 export default function Hub() {
   const store = useStore()
@@ -17,22 +25,45 @@ export default function Hub() {
   const [customLrcText, setCustomLrcText] = useState('')
   const stopRef = useRef<(() => void) | null>(null)
   const fetchingTrackRef = useRef<string | null>(null)
+  const fetchAbortRef = useRef<AbortController | null>(null)
+
+  // ── Theme mode ─────────────────────────────────────────────────────────────
+  const [themeMode, setThemeMode] = useState<'global' | 'per-page'>(() =>
+    (localStorage.getItem('lyrical_theme_mode') as 'global' | 'per-page') ?? 'global'
+  )
+  const [pageThemes, setPageThemes] = useState<Record<string, string>>(() => {
+    try { return JSON.parse(localStorage.getItem('lyrical_page_themes') ?? '{}') } catch { return {} }
+  })
 
   useEffect(() => {
-    applyTheme(store.theme)
-  }, [store.theme])
+    applyTheme(getEffectiveTheme('hub', store.theme))
+  }, [store.theme, themeMode, pageThemes])
 
+  function handleThemeMode(mode: 'global' | 'per-page') {
+    setThemeMode(mode)
+    localStorage.setItem('lyrical_theme_mode', mode)
+  }
+
+  function handlePageTheme(page: string, themeId: string) {
+    const next = { ...pageThemes, [page]: themeId }
+    setPageThemes(next)
+    localStorage.setItem('lyrical_page_themes', JSON.stringify(next))
+  }
+
+  // ── Spotify polling ────────────────────────────────────────────────────────
   useEffect(() => {
     if (!authed) return
 
     stopRef.current = startPolling(
       async (track) => {
-        // Always update the track so the status display is correct even in StrictMode
         store.setTrack(track)
 
-        // Only fetch lyrics once per track (guard against StrictMode double-invoke)
         if (fetchingTrackRef.current === track.id) return
         fetchingTrackRef.current = track.id
+
+        fetchAbortRef.current?.abort()
+        const ctrl = new AbortController()
+        fetchAbortRef.current = ctrl
 
         store.setLyricsLoading(true)
 
@@ -43,11 +74,14 @@ export default function Hub() {
           return
         }
 
-        const lrc = await fetchLyrics(track.name, track.artist, track.album)
-        // Discard stale results if track changed while we were fetching
-        if (fetchingTrackRef.current !== track.id) return
-        store.setLyrics(lrc ? parseLRC(lrc) : [])
-        store.setLyricsLoading(false)
+        try {
+          const lrc = await fetchLyrics(track.name, track.artist, track.album, ctrl.signal)
+          if (fetchingTrackRef.current !== track.id) return
+          store.setLyrics(lrc ? parseLRC(lrc) : [])
+          store.setLyricsLoading(false)
+        } catch {
+          // AbortError — a newer track took over, ignore
+        }
       },
       (ms, isPlaying) => {
         store.setProgressMs(ms)
@@ -134,13 +168,68 @@ export default function Hub() {
 
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Theme</h2>
-          <ThemePicker activeTheme={store.theme} onChange={store.setTheme} />
+
+          {/* Mode toggle */}
+          <div className={styles.themeModeRow}>
+            <button
+              className={`${styles.themeModeBtn} ${themeMode === 'global' ? styles.themeModeBtnActive : ''}`}
+              onClick={() => handleThemeMode('global')}
+            >
+              Global
+            </button>
+            <span className={styles.themeModeSep}>·</span>
+            <button
+              className={`${styles.themeModeBtn} ${themeMode === 'per-page' ? styles.themeModeBtnActive : ''}`}
+              onClick={() => handleThemeMode('per-page')}
+            >
+              Per Page
+            </button>
+          </div>
+
+          {themeMode === 'global' ? (
+            <ThemeCurator activeTheme={store.theme} onChange={store.setTheme} />
+          ) : (
+            <div className={styles.perPageGrid}>
+              {PAGE_ROWS.map(({ id, label }) => {
+                const active = pageThemes[id] ?? store.theme
+                return (
+                  <div key={id} className={styles.perPageRow}>
+                    <span className={styles.perPageLabel}>{label}</span>
+                    <div className={styles.themeChipRow}>
+                      {THEMES.map(t => (
+                        <button
+                          key={t.id}
+                          className={`${styles.themeChip} ${active === t.id ? styles.themeChipActive : ''}`}
+                          style={{
+                            '--chip-bg': t.vars['--bg'],
+                            '--chip-accent': t.vars['--accent'],
+                          } as React.CSSProperties}
+                          onClick={() => handlePageTheme(id, t.id)}
+                          title={t.label}
+                          aria-label={t.label}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+              <p className={styles.perPageHint}>
+                View windows pick up changes live via localStorage.
+              </p>
+            </div>
+          )}
         </section>
 
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Background</h2>
           <BackgroundManager />
         </section>
+      </div>
+      {/* Marquee ticker — visible only in Chaos Theory / Warm Brutalist via CSS */}
+      <div className={styles.ticker} aria-hidden="true">
+        <span className={styles.tickerTrack}>
+          {'LYRICAL · MUSIC · SOUND · RHYTHM · BEATS · MELODY · LYRICS · WAVE · SYNC · ARTIST · ALBUM · TRACK · FLOW · '.repeat(4)}
+        </span>
       </div>
     </div>
   )
