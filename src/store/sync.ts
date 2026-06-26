@@ -31,6 +31,7 @@ export function applyMessage(msg: SyncMessage, ownOrigin = WINDOW_ID): void {
   setBackground(s.background)
   setOverlayOpacity(s.overlayOpacity)
   setTimerState(s.timerState)
+  useStore.setState({ syncNudgeMs: s.syncNudgeMs })
 }
 
 export function initSync(): () => void {
