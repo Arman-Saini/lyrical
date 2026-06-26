@@ -25,7 +25,7 @@ interface Store extends AppState {
 
 const savedTheme = localStorage.getItem('lyrical_theme') ?? 'midnight'
 
-export const useStore = create<Store>((set, get) => ({
+export const useStore = create<Store>((set) => ({
   track: null,
   progressMs: 0,
   syncNudgeMs: 0,
