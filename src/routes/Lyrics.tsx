@@ -1,3 +1,47 @@
+import { useEffect, useCallback } from 'react'
+import { useStore } from '../store/index'
+import { getActiveLyricIndex } from '../lyrics/sync'
+import { applyTheme } from '../themes/index'
+import LyricsDisplay from '../components/LyricsDisplay/LyricsDisplay'
+import BackgroundLayer from '../components/BackgroundLayer/BackgroundLayer'
+import styles from './Lyrics.module.css'
+
 export default function Lyrics() {
-  return <div style={{ color: 'white', padding: 32 }}>Lyrics</div>
+  const store = useStore()
+
+  useEffect(() => { applyTheme(store.theme) }, [store.theme])
+
+  useEffect(() => {
+    const idx = getActiveLyricIndex(store.lyrics, store.progressMs + store.syncNudgeMs)
+    if (idx !== store.activeLyricIndex) store.setActiveLyricIndex(idx)
+  }, [store.progressMs, store.syncNudgeMs, store.lyrics])
+
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === '[') store.nudgeSyncMs(-500)
+    if (e.key === ']') store.nudgeSyncMs(500)
+  }, [store])
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [handleKeyDown])
+
+  return (
+    <div className={styles.page}>
+      <BackgroundLayer />
+      <div className={styles.content}>
+        <LyricsDisplay
+          lyrics={store.lyrics}
+          activeIndex={store.activeLyricIndex}
+          artist={store.track?.artist ?? ''}
+          trackName={store.track?.name ?? ''}
+        />
+        {store.syncNudgeMs !== 0 && (
+          <div className={styles.nudge}>
+            Sync offset: {store.syncNudgeMs > 0 ? '+' : ''}{store.syncNudgeMs}ms
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
