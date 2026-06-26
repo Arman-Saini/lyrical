@@ -35,6 +35,7 @@ export default function Lyrics() {
           activeIndex={store.activeLyricIndex}
           artist={store.track?.artist ?? ''}
           trackName={store.track?.name ?? ''}
+          loading={store.lyricsLoading}
         />
         {store.syncNudgeMs !== 0 && (
           <div className={styles.nudge}>

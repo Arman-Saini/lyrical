@@ -17,6 +17,7 @@ export default function Hub() {
   const [status, setStatus] = useState('Idle')
   const [customLrcText, setCustomLrcText] = useState('')
   const stopRef = useRef<(() => void) | null>(null)
+  const fetchingTrackRef = useRef<string | null>(null)
 
   useEffect(() => {
     applyTheme(store.theme)
@@ -27,14 +28,24 @@ export default function Hub() {
 
     stopRef.current = startPolling(
       async (track) => {
+        if (fetchingTrackRef.current === track.id) return
+        fetchingTrackRef.current = track.id
+
         store.setTrack(track)
+        store.setLyricsLoading(true)
         setStatus(`Playing: ${track.name} — ${track.artist}`)
 
         const custom = loadCustomLyrics(track.artist, track.name)
-        if (custom) { store.setLyrics(parseLRC(custom)); return }
+        if (custom) {
+          store.setLyrics(parseLRC(custom))
+          store.setLyricsLoading(false)
+          return
+        }
 
         const lrc = await fetchLyrics(track.name, track.artist, track.album)
+        if (fetchingTrackRef.current !== track.id) return
         store.setLyrics(lrc ? parseLRC(lrc) : [])
+        store.setLyricsLoading(false)
       },
       (ms) => store.setProgressMs(ms)
     )

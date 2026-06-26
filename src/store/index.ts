@@ -12,10 +12,12 @@ const DEFAULT_TIMER: TimerState = {
 }
 
 interface Store extends AppState {
+  lyricsLoading: boolean
   setTrack: (track: Track | null) => void
   setProgressMs: (ms: number) => void
   nudgeSyncMs: (delta: number) => void
   setLyrics: (lyrics: LyricLine[]) => void
+  setLyricsLoading: (loading: boolean) => void
   setActiveLyricIndex: (index: number) => void
   setTheme: (theme: string) => void
   setBackground: (bg: AppState['background']) => void
@@ -31,6 +33,7 @@ export const useStore = create<Store>((set) => ({
   syncNudgeMs: 0,
   lyrics: [],
   activeLyricIndex: -1,
+  lyricsLoading: false,
   theme: savedTheme,
   background: 'theme-default',
   overlayOpacity: 0.5,
@@ -40,6 +43,7 @@ export const useStore = create<Store>((set) => ({
   setProgressMs: (progressMs) => set({ progressMs }),
   nudgeSyncMs: (delta) => set(s => ({ syncNudgeMs: s.syncNudgeMs + delta })),
   setLyrics: (lyrics) => set({ lyrics, activeLyricIndex: -1 }),
+  setLyricsLoading: (lyricsLoading) => set({ lyricsLoading }),
   setActiveLyricIndex: (activeLyricIndex) => set({ activeLyricIndex }),
   setTheme: (theme) => {
     localStorage.setItem('lyrical_theme', theme)

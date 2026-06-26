@@ -7,14 +7,23 @@ interface Props {
   activeIndex: number
   artist: string
   trackName: string
+  loading?: boolean
 }
 
-export default function LyricsDisplay({ lyrics, activeIndex, artist, trackName }: Props) {
+export default function LyricsDisplay({ lyrics, activeIndex, artist, trackName, loading }: Props) {
   const activeRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     activeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }, [activeIndex])
+
+  if (loading) {
+    return (
+      <div className={styles.empty}>
+        <p>Loading lyrics…</p>
+      </div>
+    )
+  }
 
   if (!lyrics.length) {
     return (
