@@ -7,12 +7,19 @@ export function useBackground() {
   const [bgUrl, setBgUrl] = useState<string | null>(null)
 
   useEffect(() => {
+    let url: string | null = null
     if (background === 'custom') {
       loadBackground().then(blob => {
-        if (blob) setBgUrl(URL.createObjectURL(blob))
+        if (blob) {
+          url = URL.createObjectURL(blob)
+          setBgUrl(url)
+        }
       })
     } else {
       setBgUrl(null)
+    }
+    return () => {
+      if (url) URL.revokeObjectURL(url)
     }
   }, [background])
 
