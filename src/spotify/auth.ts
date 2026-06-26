@@ -1,5 +1,6 @@
 const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID as string
-const REDIRECT_URI = 'http://127.0.0.1:5173/callback'
+const REDIRECT_URI = (import.meta.env.VITE_REDIRECT_URI as string | undefined)
+  ?? 'http://127.0.0.1:5173/callback'
 const SCOPES = 'user-read-currently-playing user-read-playback-state'
 const TOKEN_KEY = 'lyrical_tokens'
 
