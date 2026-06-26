@@ -8,3 +8,22 @@ html, body, #root {
   font-family: var(--font-body, system-ui, sans-serif);
   transition: background 0.3s ease, color 0.3s ease;
 }
+
+[data-scanlines="true"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.15) 2px,
+    rgba(0, 0, 0, 0.15) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+[data-theme="glassmorphism"] .surface {
+  backdrop-filter: blur(var(--blur, 0px));
+}
