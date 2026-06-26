@@ -14,7 +14,7 @@ interface SpotifyResponse {
   } | null
 }
 
-export function parseCurrentlyPlaying(raw: unknown): { track: Track; progressMs: number } | null {
+export function parseCurrentlyPlaying(raw: unknown): { track: Track; progressMs: number; isPlaying: boolean } | null {
   if (!raw || typeof raw !== 'object') return null
   const r = raw as Partial<SpotifyResponse>
   if (!r.item || !r.item.name) return null
@@ -27,12 +27,12 @@ export function parseCurrentlyPlaying(raw: unknown): { track: Track; progressMs:
     artUrl: r.item.album?.images?.[0]?.url ?? '',
     durationMs: r.item.duration_ms ?? 0,
   }
-  return { track, progressMs: r.progress_ms ?? 0 }
+  return { track, progressMs: r.progress_ms ?? 0, isPlaying: r.is_playing ?? true }
 }
 
 export function startPolling(
   onTrackChange: (track: Track) => void,
-  onProgress: (ms: number) => void
+  onProgress: (ms: number, isPlaying: boolean) => void
 ): () => void {
   let lastTrackId: string | null = null
   let active = true
@@ -40,14 +40,19 @@ export function startPolling(
   async function poll() {
     if (!active) return
     const token = await getValidToken()
-    if (!token) { setTimeout(poll, 3000); return }
+    if (!token) { setTimeout(poll, 5000); return }
 
     try {
       const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
         headers: { Authorization: `Bearer ${token}` },
       })
-      if (res.status === 204) { setTimeout(poll, 1000); return }
-      if (!res.ok) { setTimeout(poll, 3000); return }
+      if (res.status === 204) { setTimeout(poll, 5000); return }
+      if (res.status === 429) {
+        const retryAfter = (Number(res.headers.get('Retry-After') ?? 10) + 1) * 1000
+        setTimeout(poll, retryAfter)
+        return
+      }
+      if (!res.ok) { setTimeout(poll, 10000); return }
 
       const data = await res.json()
       const parsed = parseCurrentlyPlaying(data)
@@ -56,11 +61,11 @@ export function startPolling(
           lastTrackId = parsed.track.id
           onTrackChange(parsed.track)
         }
-        onProgress(parsed.progressMs)
+        onProgress(parsed.progressMs, parsed.isPlaying)
       }
     } catch { /* network error — retry */ }
 
-    setTimeout(poll, 1000)
+    setTimeout(poll, 5000)
   }
 
   poll()

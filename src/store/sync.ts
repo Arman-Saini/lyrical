@@ -11,22 +11,24 @@ const WINDOW_ID = Math.random().toString(36).slice(2)
 export function buildMessage(origin: string): SyncMessage {
   const s = useStore.getState()
   const state: AppState = {
-    track: s.track, progressMs: s.progressMs, syncNudgeMs: s.syncNudgeMs,
-    lyrics: s.lyrics, activeLyricIndex: s.activeLyricIndex, theme: s.theme,
-    background: s.background, overlayOpacity: s.overlayOpacity, timerState: s.timerState,
+    track: s.track, progressMs: s.progressMs, isPlaying: s.isPlaying,
+    syncNudgeMs: s.syncNudgeMs, lyrics: s.lyrics, activeLyricIndex: s.activeLyricIndex,
+    theme: s.theme, background: s.background, overlayOpacity: s.overlayOpacity,
+    timerState: s.timerState,
   }
   return { origin, state }
 }
 
 export function applyMessage(msg: SyncMessage, ownOrigin = WINDOW_ID): void {
   if (msg.origin === ownOrigin) return
-  const { setTrack, setProgressMs, setLyrics, setActiveLyricIndex,
+  const { setTrack, setProgressMs, setIsPlaying, setLyrics,
     setTheme, setBackground, setOverlayOpacity, setTimerState } = useStore.getState()
   const s = msg.state
   setTrack(s.track)
   setProgressMs(s.progressMs)
+  setIsPlaying(s.isPlaying)
   setLyrics(s.lyrics)
-  setActiveLyricIndex(s.activeLyricIndex)
+  // activeLyricIndex is derived state — each window computes it independently
   setTheme(s.theme)
   setBackground(s.background)
   setOverlayOpacity(s.overlayOpacity)

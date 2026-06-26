@@ -17,7 +17,7 @@ const mockResponse = {
 }
 
 describe('parseCurrentlyPlaying', () => {
-  it('extracts track and progressMs from valid response', () => {
+  it('extracts track, progressMs and isPlaying from valid response', () => {
     const result = parseCurrentlyPlaying(mockResponse)
     expect(result).not.toBeNull()
     expect(result!.track.name).toBe('Blinding Lights')
@@ -26,6 +26,7 @@ describe('parseCurrentlyPlaying', () => {
     expect(result!.track.artUrl).toBe('https://example.com/art.jpg')
     expect(result!.track.durationMs).toBe(200000)
     expect(result!.progressMs).toBe(45000)
+    expect(result!.isPlaying).toBe(true)
   })
 
   it('returns null when item is null (nothing playing)', () => {

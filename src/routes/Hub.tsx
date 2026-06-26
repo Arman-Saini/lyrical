@@ -14,7 +14,6 @@ import styles from './Hub.module.css'
 export default function Hub() {
   const store = useStore()
   const [authed, setAuthed] = useState(isAuthenticated())
-  const [status, setStatus] = useState('Idle')
   const [customLrcText, setCustomLrcText] = useState('')
   const stopRef = useRef<(() => void) | null>(null)
   const fetchingTrackRef = useRef<string | null>(null)
@@ -28,12 +27,14 @@ export default function Hub() {
 
     stopRef.current = startPolling(
       async (track) => {
+        // Always update the track so the status display is correct even in StrictMode
+        store.setTrack(track)
+
+        // Only fetch lyrics once per track (guard against StrictMode double-invoke)
         if (fetchingTrackRef.current === track.id) return
         fetchingTrackRef.current = track.id
 
-        store.setTrack(track)
         store.setLyricsLoading(true)
-        setStatus(`Playing: ${track.name} — ${track.artist}`)
 
         const custom = loadCustomLyrics(track.artist, track.name)
         if (custom) {
@@ -43,11 +44,15 @@ export default function Hub() {
         }
 
         const lrc = await fetchLyrics(track.name, track.artist, track.album)
+        // Discard stale results if track changed while we were fetching
         if (fetchingTrackRef.current !== track.id) return
         store.setLyrics(lrc ? parseLRC(lrc) : [])
         store.setLyricsLoading(false)
       },
-      (ms) => store.setProgressMs(ms)
+      (ms, isPlaying) => {
+        store.setProgressMs(ms)
+        store.setIsPlaying(isPlaying)
+      }
     )
 
     return () => stopRef.current?.()
@@ -59,7 +64,6 @@ export default function Hub() {
       const text = e.target?.result as string
       if (store.track) {
         store.setLyrics(parseLRC(text))
-        setStatus('Manual LRC file loaded')
       }
     }
     reader.readAsText(file)
@@ -69,9 +73,12 @@ export default function Hub() {
     if (!store.track || !customLrcText.trim()) return
     saveCustomLyrics(store.track.artist, store.track.name, customLrcText)
     store.setLyrics(parseLRC(customLrcText))
-    setStatus('Custom lyrics saved')
     setCustomLrcText('')
   }
+
+  const statusText = store.track
+    ? `${store.track.name} — ${store.track.artist}`
+    : 'Idle'
 
   return (
     <div className={styles.page}>
@@ -84,7 +91,7 @@ export default function Hub() {
           {authed ? (
             <div className={styles.row}>
               <span className={styles.connected}>Connected</span>
-              <span className={styles.status}>{status}</span>
+              <span className={styles.status}>{statusText}</span>
               <button className={styles.btnDanger} onClick={() => { logout(); setAuthed(false) }}>Disconnect</button>
             </div>
           ) : (

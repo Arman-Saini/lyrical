@@ -48,6 +48,7 @@ export interface Theme {
 export interface AppState {
   track: Track | null
   progressMs: number
+  isPlaying: boolean
   syncNudgeMs: number
   lyrics: LyricLine[]
   activeLyricIndex: number

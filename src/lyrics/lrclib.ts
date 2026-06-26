@@ -1,8 +1,15 @@
+const CACHE_PREFIX = 'lyrical_lrc::'
+
 export async function fetchLyrics(
   track: string,
   artist: string,
   album: string
 ): Promise<string | null> {
+  const key = `${CACHE_PREFIX}${artist}::${track}`
+  const cached = localStorage.getItem(key)
+  // '' means "previously fetched, no lyrics exist" — skip network call
+  if (cached !== null) return cached || null
+
   const params = new URLSearchParams({
     track_name: track,
     artist_name: artist,
@@ -14,7 +21,9 @@ export async function fetchLyrics(
     })
     if (!res.ok) return null
     const data = await res.json()
-    return data.syncedLyrics ?? data.plainLyrics ?? null
+    const lyrics: string | null = data.syncedLyrics ?? data.plainLyrics ?? null
+    localStorage.setItem(key, lyrics ?? '')
+    return lyrics
   } catch {
     return null
   }
