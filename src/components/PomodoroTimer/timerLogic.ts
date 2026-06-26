@@ -13,7 +13,7 @@ export function nextPhase(
 ): Pick<TimerState, 'phase' | 'remainingMs' | 'cycleCount'> {
   if (phase === 'work') {
     const newCount = cycleCount + 1
-    if (cycleCount > 0 && cycleCount % 4 === 0) {
+    if (newCount % 4 === 0) {
       return { phase: 'longBreak', remainingMs: longBreakMs, cycleCount: newCount }
     }
     return { phase: 'break', remainingMs: breakMs, cycleCount: newCount }

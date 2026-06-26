@@ -2,13 +2,13 @@ import { describe, it, expect } from 'vitest'
 import { nextPhase, phaseLabel } from '../components/PomodoroTimer/timerLogic'
 
 describe('Timer phase logic', () => {
-  it('work phase after 3 cycles goes to break', () => {
-    const next = nextPhase('work', 3, 1500000, 300000, 900000)
+  it('work phase after 2 cycles goes to break', () => {
+    const next = nextPhase('work', 2, 1500000, 300000, 900000)
     expect(next.phase).toBe('break')
   })
 
-  it('work phase after 4th cycle (cycleCount=4 before increment) goes to longBreak', () => {
-    const next = nextPhase('work', 4, 1500000, 300000, 900000)
+  it('work phase after 4th cycle (cycleCount=3) goes to longBreak', () => {
+    const next = nextPhase('work', 3, 1500000, 300000, 900000)
     expect(next.phase).toBe('longBreak')
   })
 
